@@ -1,20 +1,19 @@
 from tkinter import Tk
-import database
-import gui
-
-# def main():
-#     database.init_db()
-#     window = Tk()
-#     window.title("Login & Registration System")
-#     gui.show_login_form(window)
-#     window.mainloop()
+import login_screen
+import registration_screen
 
 def main():
-    database.init_db()
     window = Tk()
     window.title("Login & Registration System")
-    styles = gui.setup_styles()
-    gui.show_login_form(window, styles)
+    window.geometry("350x250")  # Adjust as needed
+
+    def show_login():
+        login_screen.show_login_form(window, show_registration)
+    
+    def show_registration():
+        registration_screen.show_registration_form(window, show_login)
+
+    show_login()  # Show the login form initially
     window.mainloop()
 
 if __name__ == "__main__":
