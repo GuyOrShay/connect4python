@@ -4,6 +4,7 @@ from tkinter import messagebox, font as tkfont
 import database
 import sqlite3
 from app_styles import setup_styles
+from app_const import WINDOW_SIZE
 
 def create_styled_entry(parent, styles, show=""):
     """Creates and returns a styled Entry widget."""
@@ -12,7 +13,7 @@ def create_styled_entry(parent, styles, show=""):
 def show_registration_form(window, switch_to_login):
     styles = setup_styles()
     clear_window(window, styles)
-    window.geometry("350x350")
+    window.geometry(WINDOW_SIZE)
     
     window.grid_columnconfigure(0, weight=1)
     window.grid_columnconfigure(2, weight=1)

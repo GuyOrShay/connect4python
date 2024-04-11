@@ -4,6 +4,7 @@ from tkinter import messagebox, font as tkfont
 import database
 import sqlite3
 from app_styles import setup_styles
+from app_const import WINDOW_SIZE
 
 def create_styled_entry(parent, styles, show=""):
     """Creates and returns a styled Entry widget."""
@@ -11,10 +12,10 @@ def create_styled_entry(parent, styles, show=""):
 
 
 
-def show_login_form(window, switch_to_registration):
+def show_login_form(window, switch_to_registration , switch_to_home):
     styles = setup_styles()
     clear_window(window, styles)
-    window.geometry("350x350")  # Adjusted for bigger input fields
+    window.geometry(WINDOW_SIZE)  # Adjusted for bigger input fields
 
     window.grid_columnconfigure(0, weight=1)
     window.grid_columnconfigure(2, weight=1)
@@ -35,12 +36,12 @@ def show_login_form(window, switch_to_registration):
     password_entry = create_styled_entry(form_frame, styles, show="*")
     password_entry.pack(fill='x', pady=10)
 
-    Button(form_frame, text="Login", width=15, command=lambda: login(username_entry.get(), password_entry.get(), styles), bg=styles["buttonColor"], fg=styles["buttonFgColor"]).pack(pady=10)
+    Button(form_frame, text="Login", width=15, command=lambda: login(username_entry.get(), password_entry.get(), switch_to_home), bg=styles["buttonColor"], fg=styles["buttonFgColor"]).pack(pady=10)
     Button(form_frame, text="Register", width=15, command=lambda: switch_to_registration() , bg=styles["buttonColor"], fg=styles["buttonFgColor"]).pack()
 
-def login(username, password, styles):
+def login(username, password, switch_to_home):
     if database.login_user(username, password):
-        messagebox.showinfo("Success", "You are logged in.")
+        switch_to_home()
     else:
         messagebox.showerror("Error", "Invalid username or password.")
 
