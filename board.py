@@ -1,177 +1,106 @@
-from tkinter import *
-from tkinter import font
+from tkinter import Canvas, Button, Label, Frame, messagebox
 
-class Info(Frame):
-    def __init__(self, master=None):
-        Frame.__init__(self)
-        self.configure(width=500, height=100)
-        police = font.Font(self, size=20, family='Arial')
-        self.t = Label(self, text="Tour de Jaune", font=police)
-        self.t.grid(sticky=NSEW, pady=20)
+class GameBoard(Frame):
+    def __init__(self, master, cols=7, rows=6, **kwargs):
+        super().__init__(master, **kwargs)
+        self.cols = cols
+        self.rows = rows
+        self.pack(fill="both", expand=True)
+        self.configure(bg='blue')
 
-class Piont(object):
-    def __init__(self, x, y, can, coul="white", bg="red"):
-        self.can = can
-        self.x = x
-        self.y = y
-        self.coul = coul
+        self.turn_label = Label(self, text="Yellow's Turn", font=('Arial', 16), bg='blue', fg='white')
+        self.turn_label.pack(side="top", fill="x", pady=10)
 
-        self.tour = 1
-        
-        self.r = 30
-        self.piont = self.can.create_oval(self.x+10,self.y+10,self.x+61,self.y+61,fill=coul,outline="blue")
-        
-        
+        self.canvas = Canvas(self, bg='blue')
+        self.canvas.pack(fill="both", expand=True)
 
-    def changeCouleur(self, coul):
-        self.can.itemconfigure(self.piont, fill=coul)
-        self.coul = coul
+        self.exit_button = Button(self, text="Exit Game", command=self.master.quit)
+        self.exit_button.pack(side="bottom", pady=10)
 
-class Terrain(Canvas):
-    def __init__(self, master=None):
-        Canvas.__init__(self)
-        self.configure(width=500, height=400, bg="blue")
+        self.pieces = [[None for _ in range(cols)] for _ in range(rows)]
+        self.current_player = 'yellow'
+        self.initialize_board()
+        self.bind_events()
 
-        self.joueur = 1
-        self.coul = "yellow"
-        self.p = []
-        self.perm = True
-        
-        for i in range(0, 340, int(400/6)):
-            liste_rangee = []
-            for j in range(0, 440, int(500/7)):
-                liste_rangee.append(Piont(j, i ,self))
-                
-            self.p.append(liste_rangee)
-        
-        self.bind("<Button-1>", self.detCol)
+    def initialize_board(self):
+        self.update_idletasks()  # Ensures the window is updated
+        self.redraw_board()
 
-    def detCol(self, event):
-        if self.perm:
-            col = int(event.x/71)
-            lig = 0
-            
-            lig = 0
-            while lig < len(self.p):            
-                if self.p[0][col].coul == "red" or self.p[0][0].coul == "yellow":
+    def redraw_board(self):
+        self.canvas.delete("all")  # Clears the canvas before redrawing
+        cell_width = self.canvas.winfo_width() / self.cols
+        cell_height = self.canvas.winfo_height() / self.rows
+
+        for row in range(self.rows):
+            for col in range(self.cols):
+                x1 = col * cell_width + cell_width * 0.1
+                y1 = row * cell_height + cell_height * 0.1
+                x2 = x1 + cell_width * 0.8
+                y2 = y1 + cell_height * 0.8
+                self.canvas.create_oval(x1, y1, x2, y2, fill='white', tags="slot")
+
+        # Redraw pieces if they exist
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if self.pieces[row][col]:
+                    self.draw_piece(row, col)
+
+    def draw_piece(self, row, col):
+        cell_width = self.canvas.winfo_width() / self.cols
+        cell_height = self.canvas.winfo_height() / self.rows
+        x1 = col * cell_width + cell_width * 0.2
+        y1 = row * cell_height + cell_height * 0.2
+        x2 = x1 + cell_width * 0.6
+        y2 = y1 + cell_height * 0.6
+        color = self.pieces[row][col]
+        self.canvas.create_oval(x1, y1, x2, y2, fill=color, tags="piece")
+
+    def bind_events(self):
+        self.canvas.bind("<Button-1>", self.process_turn)
+        self.master.bind("<Configure>", self.on_resize)  # Re-draw board on resize
+
+    def on_resize(self, event):
+        self.redraw_board()
+
+    def process_turn(self, event):
+        col = int(event.x / (self.canvas.winfo_width() / self.cols))
+        for row in reversed(range(self.rows)):
+            if not self.pieces[row][col]:
+                self.pieces[row][col] = self.current_player
+                self.draw_piece(row, col)
+                if self.check_winner(row, col):
+                    messagebox.showinfo("Game Over", f"{self.current_player.capitalize()} wins!")
+                    self.canvas.unbind("<Button-1>")
+                self.switch_player()
+                break
+
+    def switch_player(self):
+        self.current_player = 'red' if self.current_player == 'yellow' else 'yellow'
+        self.turn_label.config(text=f"{self.current_player.capitalize()}'s Turn")
+
+    def check_winner(self, row, col):
+        directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
+        for dr, dc in directions:
+            count = 1
+            for n in range(1, 4):
+                r = row + dr * n
+                c = col + dc * n
+                if r < 0 or r >= self.rows or c < 0 or c >= self.cols or self.pieces[r][c] != self.current_player:
                     break
-                
-                if self.p[lig][col].coul == "red" or self.p[lig][col].coul == "yellow":
-                    self.p[lig-1][col].changeCouleur(self.coul)
+                count += 1
+            for n in range(1, 4):
+                r = row - dr * n
+                c = col - dc * n
+                if r < 0 or r >= self.rows or c < 0 or c >= self.cols or self.pieces[r][c] != self.current_player:
                     break
-                
-                elif lig == len(self.p)-1:
-                    self.p[lig][col].changeCouleur(self.coul)
-                    break
-
-                
-                if self.p[lig][col].coul != "red" and self.p[lig][col].coul != "yellow":
-                    lig+=1
-
-            
-            
-            if self.joueur == 1:
-                self.joueur = 2
-                info.t.config(text="Tour de rouge")
-                self.coul = "red"
-
-            elif self.joueur == 2:
-                self.joueur = 1
-                info.t.config(text="Tour de jaune")
-                self.coul = "yellow"
-
-            self.Horizontal()
-            self.Vertical()
-            self.Diagonal1()
-            self.Diagonal2()
-
-    def Horizontal(self):
-        i = 0
-        while(i < len(self.p)):
-            j = 0
-            while(j < 3):
-                if(self.p[i][j].coul == self.p[i][j+1].coul == self.p[i][j+2].coul == self.p[i][j+3].coul == "red"):
-                    info.t.config(text="Victoire de rouge !")
-                    self.perm = False
-                    break
-                elif(self.p[i][j].coul == self.p[i][j+1].coul == self.p[i][j+2].coul == self.p[i][j+3].coul == "yellow"):
-                    info.t.config(text="Victoire de Jaune !")
-                    self.perm = False
-                    break
-                j +=1
-            i += 1
-
-    def Vertical(self):
-        i = 0
-        while(i < 3):
-            j = 0
-            while(j < len(self.p[i])):
-                if(self.p[i][j].coul == self.p[i+1][j].coul == self.p[i+2][j].coul == self.p[i+3][j].coul == "red"):
-                    info.t.config(text="Victoire de rouge !")
-                    self.perm = False
-                    break
-                elif(self.p[i][j].coul == self.p[i+1][j].coul == self.p[i+2][j].coul == self.p[i+3][j].coul == "yellow"):
-                    info.t.config(text="Victoire de Jaune !")
-                    self.perm = False
-                    break
-                j+=1
-            i+=1
-
-    def Diagonal1(self):
-        i = 0
-        while(i < 3):
-            j = 0
-            while(j < 3):
-                if(self.p[i][j].coul == self.p[i+1][j+1].coul == self.p[i+2][j+2].coul == self.p[i+3][j+3].coul == "red"):
-                    info.t.config(text="Victoire de rouge !")
-                    self.perm = False
-                    break
-                elif(self.p[i][j].coul == self.p[i+1][j+1].coul == self.p[i+2][j+2].coul == self.p[i+3][j+3].coul == "yellow"):
-                    info.t.config(text="Victoire de Jaune !")
-                    self.perm = False
-                    break
-                j += 1
-            i += 1
-                    
-    def Diagonal2(self):
-        i = 0
-        while(i < 3):
-            j = len(self.p[i])-1
-            while(j > len(self.p)-4):
-                if(self.p[i][j].coul == self.p[i+1][j-1].coul == self.p[i+2][j-2].coul == self.p[i+3][j-3].coul == "red"):
-                    info.t.config(text="Victoire de rouge !")
-                    self.perm = False
-                    break
-                elif(self.p[i][j].coul == self.p[i+1][j-1].coul == self.p[i+2][j-2].coul == self.p[i+3][j-3].coul == "yellow"):
-                    info.t.config(text="Victoire de Jaune !")
-                    self.perm = False
-                    break
-                j -= 1
-            i += 1
+                count += 1
+            if count >= 4:
+                return True
+        return False
 
 
-
-root = Tk()
-root.geometry("500x550")
-root.title("Puissance 4 - V 1.0 -- Romain VAUSE")
-
-info = Info(root)
-info.grid(row=0, column=0)
-
-
-t = Terrain(root)
-t.grid(row=1, column=0)
-
-def rein():
-    global info
-    info.t.config(text="")
-    
-    info = Info(root)
-    info.grid(row=0, column=0)
-
-    t = Terrain(root)
-    t.grid(row=1, column=0)
-
-Button(root, text="Réinitialiser", command=rein).grid(row=2, column=0, pady=30)
-
-root.mainloop()
+def create_game_board(size, parent_window):
+    for widget in parent_window.winfo_children():
+        widget.destroy()
+    game_board = GameBoard(parent_window, cols=size, rows=6, bg="blue")
+    game_board.pack(fill="both", expand=True)

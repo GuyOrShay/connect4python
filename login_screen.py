@@ -2,7 +2,6 @@
 from tkinter import *
 from tkinter import messagebox, font as tkfont
 import database
-import sqlite3
 from app_styles import setup_styles
 from app_const import WINDOW_SIZE
 
@@ -10,12 +9,10 @@ def create_styled_entry(parent, styles, show=""):
     """Creates and returns a styled Entry widget."""
     return Entry(parent, font=styles["fontInput"], bg=styles["entryBgColor"], fg=styles["entryFgColor"], insertbackground=styles["entryFgColor"], bd=styles["entryBorderWidth"], show=show, relief='flat', highlightthickness=1, highlightcolor=styles["buttonColor"], highlightbackground=styles["bgColor"])
 
-
-
 def show_login_form(window, switch_to_registration , switch_to_home):
     styles = setup_styles()
     clear_window(window, styles)
-    window.geometry(WINDOW_SIZE)  # Adjusted for bigger input fields
+    window.geometry(WINDOW_SIZE) 
 
     window.grid_columnconfigure(0, weight=1)
     window.grid_columnconfigure(2, weight=1)

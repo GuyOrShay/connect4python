@@ -34,11 +34,11 @@ def show_registration_form(window, switch_to_login):
     password_entry = create_styled_entry(form_frame, styles, show="*")
     password_entry.pack(fill='x', pady=10)
 
-    Button(form_frame, text="Register", width=15, command=lambda: register(username_entry.get(), password_entry.get(), styles), bg=styles["buttonColor"], fg=styles["buttonFgColor"]).pack()
+    Button(form_frame, text="Register", width=15, command=lambda: register(username_entry.get(), password_entry.get(), switch_to_login), bg=styles["buttonColor"], fg=styles["buttonFgColor"]).pack()
     Button(form_frame, text="Login", width=15, command=lambda: switch_to_login() , bg=styles["buttonColor"], fg=styles["buttonFgColor"]).pack(pady=10)
 
 
-def register(username, password, window, styles, switch_to_login):
+def register(username, password, switch_to_login):
     try:
         database.register_user(username, password)
         messagebox.showinfo("Success", "You are registered successfully.")
