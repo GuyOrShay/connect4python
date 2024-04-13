@@ -1,33 +1,36 @@
 from tkinter import Canvas, Button, Label, Frame, messagebox
 
+
 class GameBoard(Frame):
     def __init__(self, master, cols=7, rows=6, **kwargs):
         super().__init__(master, **kwargs)
         self.cols = cols
         self.rows = rows
         self.pack(fill="both", expand=True)
-        self.configure(bg='blue')
+        self.configure(bg="blue")
 
-        self.turn_label = Label(self, text="Yellow's Turn", font=('Arial', 16), bg='blue', fg='white')
+        self.turn_label = Label(
+            self, text="Yellow's Turn", font=("Arial", 16), bg="blue", fg="white"
+        )
         self.turn_label.pack(side="top", fill="x", pady=10)
 
-        self.canvas = Canvas(self, bg='blue')
+        self.canvas = Canvas(self, bg="blue")
         self.canvas.pack(fill="both", expand=True)
 
         self.exit_button = Button(self, text="Exit Game", command=self.master.quit)
         self.exit_button.pack(side="bottom", pady=10)
 
         self.pieces = [[None for _ in range(cols)] for _ in range(rows)]
-        self.current_player = 'yellow'
+        self.current_player = "yellow"
         self.initialize_board()
         self.bind_events()
 
     def initialize_board(self):
-        self.update_idletasks()  # Ensures the window is updated
+        self.update_idletasks()
         self.redraw_board()
 
     def redraw_board(self):
-        self.canvas.delete("all")  # Clears the canvas before redrawing
+        self.canvas.delete("all")
         cell_width = self.canvas.winfo_width() / self.cols
         cell_height = self.canvas.winfo_height() / self.rows
 
@@ -37,9 +40,8 @@ class GameBoard(Frame):
                 y1 = row * cell_height + cell_height * 0.1
                 x2 = x1 + cell_width * 0.8
                 y2 = y1 + cell_height * 0.8
-                self.canvas.create_oval(x1, y1, x2, y2, fill='white', tags="slot")
+                self.canvas.create_oval(x1, y1, x2, y2, fill="white", tags="slot")
 
-        # Redraw pieces if they exist
         for row in range(self.rows):
             for col in range(self.cols):
                 if self.pieces[row][col]:
@@ -69,13 +71,15 @@ class GameBoard(Frame):
                 self.pieces[row][col] = self.current_player
                 self.draw_piece(row, col)
                 if self.check_winner(row, col):
-                    messagebox.showinfo("Game Over", f"{self.current_player.capitalize()} wins!")
+                    messagebox.showinfo(
+                        "Game Over", f"{self.current_player.capitalize()} wins!"
+                    )
                     self.canvas.unbind("<Button-1>")
                 self.switch_player()
                 break
 
     def switch_player(self):
-        self.current_player = 'red' if self.current_player == 'yellow' else 'yellow'
+        self.current_player = "red" if self.current_player == "yellow" else "yellow"
         self.turn_label.config(text=f"{self.current_player.capitalize()}'s Turn")
 
     def check_winner(self, row, col):
@@ -85,13 +89,25 @@ class GameBoard(Frame):
             for n in range(1, 4):
                 r = row + dr * n
                 c = col + dc * n
-                if r < 0 or r >= self.rows or c < 0 or c >= self.cols or self.pieces[r][c] != self.current_player:
+                if (
+                    r < 0
+                    or r >= self.rows
+                    or c < 0
+                    or c >= self.cols
+                    or self.pieces[r][c] != self.current_player
+                ):
                     break
                 count += 1
             for n in range(1, 4):
                 r = row - dr * n
                 c = col - dc * n
-                if r < 0 or r >= self.rows or c < 0 or c >= self.cols or self.pieces[r][c] != self.current_player:
+                if (
+                    r < 0
+                    or r >= self.rows
+                    or c < 0
+                    or c >= self.cols
+                    or self.pieces[r][c] != self.current_player
+                ):
                     break
                 count += 1
             if count >= 4:

@@ -1,6 +1,5 @@
 import sqlite3
 
-# Initialize database connection and create table
 def init_db():
     with sqlite3.connect("connect4.db") as db:
         cursor = db.cursor()
@@ -13,14 +12,12 @@ def init_db():
     """)
     db.commit()
 
-# Register a new user
 def register_user(username, password):
     with sqlite3.connect("connect4.db") as db:
         cursor = db.cursor()
     cursor.execute("INSERT INTO users(username, password) VALUES (?, ?)", (username, password))
     db.commit()
 
-# Login a user
 def login_user(username, password):
     with sqlite3.connect("connect4.db") as db:
         cursor = db.cursor()

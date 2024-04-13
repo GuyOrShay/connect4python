@@ -3,6 +3,7 @@ import login_screen
 import registration_screen
 import home_screen
 import board
+import bot_board
 from app_const import WINDOW_SIZE
 
 
@@ -20,12 +21,17 @@ def main():
     def show_home():
         for widget in window.winfo_children():
             widget.destroy()
-        home_screen.show_home_screen(window, start_game)
+        home_screen.show_home_screen(window, start_game ,start_bot_game)
 
     def start_game(size):
         for widget in window.winfo_children():
             widget.destroy()
         board.create_game_board(size, window)
+        
+    def start_bot_game(size):
+        for widget in window.winfo_children():
+            widget.destroy()
+        bot_board.create_game_board(size, window)
 
     
     show_login()  
