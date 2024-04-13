@@ -24,6 +24,7 @@ class GameBoard(Frame):
         self.port = port
         self.cols = size
         self.rows = size
+        self.username = username
 
         self.pieces = [[None for _ in range(self.cols)] for _ in range(self.rows)]
 
@@ -43,7 +44,9 @@ class GameBoard(Frame):
         self.master.protocol("WM_DELETE_WINDOW", self.on_window_close)
 
     def create_widgets(self):
-        turn_text = "Your Turn" if self.is_host else "Waiting for Opponent..."
+        turn_text = (
+            self.username + " Turn" if self.is_host else "Waiting for Opponent..."
+        )
         self.turn_label = Label(
             self, text=turn_text, font=("Arial", 16), bg="blue", fg="white"
         )
@@ -63,7 +66,7 @@ class GameBoard(Frame):
                 self.socket.listen(1)
                 self.client_socket, addr = self.socket.accept()
                 self.connection = self.client_socket
-                self.turn_label.config(text="Your Turn")
+                self.turn_label.config(text=self.username + " Turn")
                 self.is_my_turn = True
             else:
                 self.socket.connect((self.ip, self.port))
@@ -96,10 +99,10 @@ class GameBoard(Frame):
                 if data:
                     if "GAME OVER" in data:
                         messagebox.showinfo(
-                            "Game Over , You Lose", data.split(":")[1].strip()
+                            "Game Over , You Lose , ", data.split(":")[1].strip()
                         )
                         self.canvas.unbind("<Button-1>")
-                        self.turn_label.config(text="You Lose")
+                        self.turn_label.config(text=self.username + " Lose")
                         break
                     else:
                         self.process_received_move(int(data))
@@ -122,11 +125,13 @@ class GameBoard(Frame):
             self.turn_label.config(text="Waiting for Opponent...")
         else:
             self.connection.sendall(str(col).encode())
-            self.send_game_over("You Lose")
+            self.send_game_over(self.username + " Win")
 
     def switch_player(self):
         self.is_my_turn = not self.is_my_turn  # Toggle turn
-        turn_text = "Your Turn" if self.is_my_turn else "Waiting for Opponent..."
+        turn_text = (
+            self.username + " Turn" if self.is_my_turn else "Waiting for Opponent..."
+        )
         self.turn_label.config(text=turn_text)
 
     def close_connection(self):
@@ -168,9 +173,7 @@ class GameBoard(Frame):
                 self.pieces[row][col] = color
                 self.draw_piece(row, col, color)
                 if self.check_winner(row, col):
-                    winner = (
-                        "You win!" if color == self.current_player else "Opponent wins!"
-                    )
+                    winner = self.username + " Win!"
                     messagebox.showinfo("Game Over", winner)
                     self.canvas.unbind("<Button-1>")
                     self.turn_label.config(text="You Win")
@@ -226,6 +229,8 @@ class GameBoard(Frame):
         return False
 
 
-def create_game_board(size, parent_window, isHost, ip, port):
-    game_board = GameBoard(parent_window, is_host=isHost, size=size, ip=ip, port=port)
+def create_game_board(size, parent_window, isHost, ip, port, username):
+    game_board = GameBoard(
+        parent_window, is_host=isHost, size=size, ip=ip, port=port, username=username
+    )
     game_board.pack(fill="both", expand=True)

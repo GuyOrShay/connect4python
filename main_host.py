@@ -36,13 +36,13 @@ def main():
             widget.destroy()
         bot_board.create_game_board(size, window)
 
-    def start_online_game(isHost, size, ip, port):
+    def start_online_game(isHost, size, ip, port, username):
         for widget in window.winfo_children():
             widget.destroy()
-        online_board.create_game_board(size, window, isHost, ip, port)
+        online_board.create_game_board(size, window, isHost, ip, port, username)
 
-    start_online_game(False, 6, "127.0.0.1", 4000)
-    #show_login()
+    start_online_game(True, 6, "127.0.0.1", 4000, "Host")
+    # show_login()
     window.mainloop()
 
 
