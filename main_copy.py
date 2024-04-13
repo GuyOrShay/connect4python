@@ -41,7 +41,7 @@ def main():
             widget.destroy()
         online_board.create_game_board(size, window, isHost, ip, port)
 
-    start_online_game(True, 6, "127.0.0.1", 4000)
+    start_online_game(False, 6, "127.0.0.1", 4000)
     #show_login()
     window.mainloop()
 
