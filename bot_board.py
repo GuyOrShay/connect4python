@@ -13,10 +13,12 @@ class GameBoard(Frame):
         # Player always starts first and is considered "Yellow"
         self.player_color = "yellow"
         self.bot_color = "red"
-        
+
         self.current_player = self.player_color  # Start with the player
 
-        self.turn_label = Label(self, text="Player's Turn", font=("Arial", 16), bg="blue", fg="white")
+        self.turn_label = Label(
+            self, text="Player's Turn", font=("Arial", 16), bg="blue", fg="white"
+        )
         self.turn_label.pack(side="top", fill="x", pady=10)
 
         self.canvas = Canvas(self, bg="blue")
@@ -43,7 +45,7 @@ class GameBoard(Frame):
                 y1 = row * cell_height + cell_height * 0.1
                 x2 = x1 + cell_width * 0.8
                 y2 = y1 + cell_height * 0.8
-                self.canvas.create_oval(x1, y1, x2, y2, fill='white', tags="slot")
+                self.canvas.create_oval(x1, y1, x2, y2, fill="white", tags="slot")
 
     def bind_events(self):
         self.canvas.bind("<Button-1>", self.process_turn)
@@ -52,7 +54,6 @@ class GameBoard(Frame):
     def on_resize(self, event):
         self.redraw_board()
 
-   
     def process_turn(self, event):
         if self.current_player != self.player_color:
             return  # It's the bot's turn, ignore player clicks
@@ -143,13 +144,17 @@ class GameBoard(Frame):
         self.canvas.create_oval(x1, y1, x2, y2, fill=color, tags="piece")
 
     def switch_player(self):
-        self.current_player = self.bot_color if self.current_player == self.player_color else self.player_color
+        self.current_player = (
+            self.bot_color
+            if self.current_player == self.player_color
+            else self.player_color
+        )
         current_turn = "Player" if self.current_player == self.player_color else "Bot"
         self.turn_label.config(text=f"{current_turn}'s Turn")
 
     def is_player_turn(self):
         return self.current_player == self.player_color
-    
+
     def check_winner(self, row, col):
         directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
         for dr, dc in directions:

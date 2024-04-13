@@ -9,7 +9,9 @@ def setup_styles():
     """Sets up custom styles for the application."""
     return {
         "fontLarge": tkfont.Font(family="Helvetica", size=14, weight="bold"),
-        "fontInput": tkfont.Font(family="Helvetica", size=12),  # New font for input fields
+        "fontInput": tkfont.Font(
+            family="Helvetica", size=12
+        ),  # New font for input fields
         "bgColor": "#2A2D34",
         "fgColor": "#C9D1D9",
         "buttonColor": "#4E5A65",
@@ -18,5 +20,3 @@ def setup_styles():
         "entryFgColor": "#FFFFFF",
         "entryBorderWidth": 2,  # Border width for the entry widgets
     }
-
-
