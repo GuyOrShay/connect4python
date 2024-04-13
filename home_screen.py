@@ -89,7 +89,7 @@ def play_over_ip(start_online_game_callback):
             "Board Size", "Enter the board size (4-10):", minvalue=4, maxvalue=10
         )
         if size:
-            start_online_game_callback(isHost, size, 0, 0)
+            start_online_game_callback(isHost, size, "127.0.0.1", 4000)
     else:
         client_address = simpledialog.askstring(
             "Connect Four over IP",
@@ -99,4 +99,4 @@ def play_over_ip(start_online_game_callback):
         ip, port = client_address.split(":")
         port = int(port)
         if client_address:
-            start_online_game_callback(False, 0, ip, port)
+            start_online_game_callback(False, 6, ip, port)

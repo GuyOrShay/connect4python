@@ -4,6 +4,7 @@ import registration_screen
 import home_screen
 import board
 import bot_board
+import online_board
 from app_const import WINDOW_SIZE
 
 
@@ -38,9 +39,9 @@ def main():
     def start_online_game(isHost, size, ip, port):
         for widget in window.winfo_children():
             widget.destroy()
-        print(ip)
-        #bot_board.create_game_board(size, window)
+        online_board.create_game_board(size, window, isHost, ip, port)
 
+    #start_online_game(True, 6, "127.0.0.1", 4000)
     show_login()
     window.mainloop()
 
