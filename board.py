@@ -2,12 +2,21 @@ from tkinter import Canvas, Button, Label, Frame, messagebox
 
 
 class GameBoard(Frame):
-    def __init__(self, master, cols=7, rows=6, **kwargs):
+    def __init__(
+        self,
+        master,
+        cols=7,
+        rows=6,
+        username="Guast",
+        back_to_home_callback=None,
+        **kwargs,
+    ):
         super().__init__(master, **kwargs)
         self.cols = cols
         self.rows = rows
         self.pack(fill="both", expand=True)
         self.configure(bg="blue")
+        self.username = username
 
         self.turn_label = Label(
             self, text="Yellow's Turn", font=("Arial", 16), bg="blue", fg="white"
@@ -16,6 +25,8 @@ class GameBoard(Frame):
 
         self.canvas = Canvas(self, bg="blue")
         self.canvas.pack(fill="both", expand=True)
+
+        self.back_to_home_callback = back_to_home_callback
 
         self.exit_button = Button(self, text="Exit Game", command=self.master.quit)
         self.exit_button.pack(side="bottom", pady=10)
@@ -61,6 +72,10 @@ class GameBoard(Frame):
         self.canvas.bind("<Button-1>", self.process_turn)
         self.master.bind("<Configure>", self.on_resize)  # Re-draw board on resize
 
+    def unbind_events(self):
+        self.canvas.unbind("<Button-1>")
+        self.master.unbind("<Configure>")
+
     def on_resize(self, event):
         self.redraw_board()
 
@@ -74,7 +89,9 @@ class GameBoard(Frame):
                     messagebox.showinfo(
                         "Game Over", f"{self.current_player.capitalize()} wins!"
                     )
-                    self.canvas.unbind("<Button-1>")
+                    self.unbind_events()
+                    self.back_to_home_callback(self.username)
+                    return
                 self.switch_player()
                 break
 
@@ -115,8 +132,15 @@ class GameBoard(Frame):
         return False
 
 
-def create_game_board(size, parent_window):
+def create_game_board(size, parent_window, username, back_to_home_callback):
     for widget in parent_window.winfo_children():
         widget.destroy()
-    game_board = GameBoard(parent_window, cols=size, rows=6, bg="blue")
+    game_board = GameBoard(
+        parent_window,
+        cols=size,
+        rows=6,
+        bg="blue",
+        username=username,
+        back_to_home_callback=back_to_home_callback,
+    )
     game_board.pack(fill="both", expand=True)

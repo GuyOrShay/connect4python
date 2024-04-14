@@ -86,7 +86,7 @@ def show_login_form(window, switch_to_registration, switch_to_home):
 
 def login(username, password, switch_to_home):
     if database.login_user(username, password):
-        switch_to_home()
+        switch_to_home(username)
     else:
         messagebox.showerror("Error", "Invalid username or password.")
 

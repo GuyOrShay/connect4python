@@ -19,22 +19,22 @@ def main():
     def show_registration():
         registration_screen.show_registration_form(window, show_login)
 
-    def show_home():
+    def show_home(username):
         for widget in window.winfo_children():
             widget.destroy()
         home_screen.show_home_screen(
-            window, start_game, start_bot_game, start_online_game
+            window, username, start_game, start_bot_game, start_online_game
         )
 
-    def start_game(size):
+    def start_game(size, username):
         for widget in window.winfo_children():
             widget.destroy()
-        board.create_game_board(size, window)
+        board.create_game_board(size, window, username, show_home)
 
-    def start_bot_game(size):
+    def start_bot_game(size, username):
         for widget in window.winfo_children():
             widget.destroy()
-        bot_board.create_game_board(size, window)
+        bot_board.create_game_board(size, window, username, show_home)
 
     def start_online_game(isHost, size, ip, port, username):
         for widget in window.winfo_children():

@@ -1,11 +1,15 @@
-from tkinter import Frame, Button, simpledialog, messagebox, Toplevel
+from tkinter import Frame, Button, Label, simpledialog, messagebox, Toplevel
 from app_styles import setup_styles
 from app_const import WINDOW_SIZE
 import board
 
 
 def show_home_screen(
-    window, start_game_callback, start_bot_game_callback, start_online_game_callback
+    window,
+    username,
+    start_game_callback,
+    start_bot_game_callback,
+    start_online_game_callback,
 ):
     styles = setup_styles()
     clear_window(window)
@@ -17,6 +21,15 @@ def show_home_screen(
     frame = Frame(window, bg=styles["bgColor"])
     frame.grid(row=0, column=0, sticky="nsew")
 
+    greeting_label = Label(
+        frame,
+        text=f"Hello, {username}!",
+        font=styles["fontLarge"],
+        bg=styles["bgColor"],
+        fg=styles["fgColor"],
+    )
+    greeting_label.grid(row=0, column=0, sticky="ew", padx=50, pady=20)
+
     frame.grid_rowconfigure(0, weight=1)
     frame.grid_rowconfigure(4, weight=1)
     frame.grid_columnconfigure(0, weight=1)
@@ -27,7 +40,7 @@ def show_home_screen(
         font=styles["fontLarge"],
         bg=styles["buttonColor"],
         fg=styles["buttonFgColor"],
-        command=lambda: play_vs_bot(start_bot_game_callback),
+        command=lambda: play_vs_bot(start_bot_game_callback, username),
     ).grid(row=1, column=0, sticky="ew", padx=50)
     Button(
         frame,
@@ -35,7 +48,7 @@ def show_home_screen(
         font=styles["fontLarge"],
         bg=styles["buttonColor"],
         fg=styles["buttonFgColor"],
-        command=lambda: play_local_multiplayer(start_game_callback),
+        command=lambda: play_local_multiplayer(start_game_callback, username),
     ).grid(row=2, column=0, sticky="ew", padx=50, pady=10)
     Button(
         frame,
@@ -43,7 +56,7 @@ def show_home_screen(
         font=styles["fontLarge"],
         bg=styles["buttonColor"],
         fg=styles["buttonFgColor"],
-        command=lambda: play_over_ip(start_online_game_callback),
+        command=lambda: play_over_ip(start_online_game_callback, username),
     ).grid(row=3, column=0, sticky="ew", padx=50)
 
 
@@ -64,23 +77,23 @@ def clear_window(window):
     window.configure(bg=setup_styles()["bgColor"])
 
 
-def play_vs_bot(start_bot_game_callback):
+def play_vs_bot(start_bot_game_callback, username):
     size = simpledialog.askinteger(
         "Board Size", "Enter the board size (4-10):", minvalue=4, maxvalue=10
     )
     if size:
-        start_bot_game_callback(size)
+        start_bot_game_callback(size, username)
 
 
-def play_local_multiplayer(start_game_callback):
+def play_local_multiplayer(start_game_callback, username):
     size = simpledialog.askinteger(
         "Board Size", "Enter the board size (4-10):", minvalue=4, maxvalue=10
     )
     if size:
-        start_game_callback(size)
+        start_game_callback(size, username)
 
 
-def play_over_ip(start_online_game_callback):
+def play_over_ip(start_online_game_callback, username):
     isHost = messagebox.askyesno(
         "Connect Four over IP", "Do you want to host the game?"
     )
@@ -89,7 +102,7 @@ def play_over_ip(start_online_game_callback):
             "Board Size", "Enter the board size (4-10):", minvalue=4, maxvalue=10
         )
         if size:
-            start_online_game_callback(isHost, size, "127.0.0.1", 4000)
+            start_online_game_callback(isHost, size, "127.0.0.1", 4000, username)
     else:
         client_address = simpledialog.askstring(
             "Connect Four over IP",
@@ -99,4 +112,4 @@ def play_over_ip(start_online_game_callback):
         ip, port = client_address.split(":")
         port = int(port)
         if client_address:
-            start_online_game_callback(False, 6, ip, port)
+            start_online_game_callback(False, 6, ip, port, username)

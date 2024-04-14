@@ -3,21 +3,34 @@ from tkinter import Canvas, Button, Label, Frame, messagebox
 
 
 class GameBoard(Frame):
-    def __init__(self, master, cols=7, rows=6, **kwargs):
+    def __init__(
+        self,
+        master,
+        cols=7,
+        rows=6,
+        username="Player",
+        back_to_home_callback=None,
+        **kwargs,
+    ):
         super().__init__(master, **kwargs)
         self.cols = cols
         self.rows = rows
+        self.username = username
         self.pack(fill="both", expand=True)
         self.configure(bg="blue")
 
-        # Player always starts first and is considered "Yellow"
         self.player_color = "yellow"
         self.bot_color = "red"
+        self.back_to_home_callback = back_to_home_callback
 
         self.current_player = self.player_color  # Start with the player
 
         self.turn_label = Label(
-            self, text="Player's Turn", font=("Arial", 16), bg="blue", fg="white"
+            self,
+            text=self.username + " Turn",
+            font=("Arial", 16),
+            bg="blue",
+            fg="white",
         )
         self.turn_label.pack(side="top", fill="x", pady=10)
 
@@ -51,6 +64,10 @@ class GameBoard(Frame):
         self.canvas.bind("<Button-1>", self.process_turn)
         self.master.bind("<Configure>", self.on_resize)  # Handles dynamic resizing
 
+    def unbind_events(self):
+        self.canvas.unbind("<Button-1>")
+        self.master.unbind("<Configure>")  
+
     def on_resize(self, event):
         self.redraw_board()
 
@@ -69,9 +86,10 @@ class GameBoard(Frame):
                 self.pieces[row][col] = color
                 self.draw_piece(row, col, color)
                 if self.check_winner(row, col):
-                    winner = "Player" if color == self.player_color else "Bot"
+                    winner = self.username if color == self.player_color else "Bot"
                     messagebox.showinfo("Game Over", f"{winner} wins!")
-                    self.canvas.unbind("<Button-1>")
+                    self.unbind_events()
+                    self.back_to_home_callback(self.username)
                     return False
                 self.switch_player()
                 return True
@@ -149,7 +167,9 @@ class GameBoard(Frame):
             if self.current_player == self.player_color
             else self.player_color
         )
-        current_turn = "Player" if self.current_player == self.player_color else "Bot"
+        current_turn = (
+            self.username if self.current_player == self.player_color else "Bot"
+        )
         self.turn_label.config(text=f"{current_turn}'s Turn")
 
     def is_player_turn(self):
@@ -188,8 +208,15 @@ class GameBoard(Frame):
         return False
 
 
-def create_game_board(size, parent_window):
+def create_game_board(size, parent_window, username, back_to_home_callback):
     for widget in parent_window.winfo_children():
         widget.destroy()
-    game_board = GameBoard(parent_window, cols=size, rows=6, bg="blue")
+    game_board = GameBoard(
+        parent_window,
+        cols=size,
+        rows=6,
+        bg="blue",
+        username=username,
+        back_to_home_callback=back_to_home_callback,
+    )
     game_board.pack(fill="both", expand=True)

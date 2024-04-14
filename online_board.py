@@ -12,6 +12,7 @@ class GameBoard(Frame):
         ip="127.0.0.1",
         port=4000,
         username="Player",
+        back_to_home_callback = None,
         **kwargs,
     ):
         super().__init__(master, **kwargs)
@@ -25,6 +26,7 @@ class GameBoard(Frame):
         self.cols = size
         self.rows = size
         self.username = username
+        self.back_to_home_callback = back_to_home_callback
 
         self.pieces = [[None for _ in range(self.cols)] for _ in range(self.rows)]
 
@@ -81,6 +83,8 @@ class GameBoard(Frame):
                 "Network Error", f"Failed to establish connection: {e}"
             )
             self.close_connection()
+            self.back_to_home_callback(self.username)
+            
 
     def close_connection(self):
         if hasattr(self, "client_socket"):
@@ -109,6 +113,7 @@ class GameBoard(Frame):
 
             except socket.error:
                 messagebox.showinfo("Connection Closed", "The connection was lost.")
+                self.back_to_home_callback(self.username)
                 break
 
     def process_received_move(self, col):
@@ -194,7 +199,7 @@ class GameBoard(Frame):
         y2 = y1 + cell_height * 0.6
         self.canvas.create_oval(
             x1, y1, x2, y2, fill=color, tags=f"piece{row}{col}"
-        )  # Tag each piece uniquely
+        )
 
     def check_winner(self, row, col):
         directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
@@ -229,8 +234,8 @@ class GameBoard(Frame):
         return False
 
 
-def create_game_board(size, parent_window, isHost, ip, port, username):
+def create_game_board(size, parent_window, isHost, ip, port, username , back_to_home_callback):
     game_board = GameBoard(
-        parent_window, is_host=isHost, size=size, ip=ip, port=port, username=username
+        parent_window, is_host=isHost, size=size, ip=ip, port=port, username=username , back_to_home_callback=back_to_home_callback
     )
     game_board.pack(fill="both", expand=True)
