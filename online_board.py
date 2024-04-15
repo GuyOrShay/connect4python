@@ -12,7 +12,7 @@ class GameBoard(Frame):
         ip="127.0.0.1",
         port=4000,
         username="Player",
-        back_to_home_callback = None,
+        back_to_home_callback=None,
         **kwargs,
     ):
         super().__init__(master, **kwargs)
@@ -26,6 +26,7 @@ class GameBoard(Frame):
         self.cols = size
         self.rows = size
         self.username = username
+        self.is_my_turn = None
         self.back_to_home_callback = back_to_home_callback
 
         self.pieces = [[None for _ in range(self.cols)] for _ in range(self.rows)]
@@ -47,7 +48,7 @@ class GameBoard(Frame):
 
     def create_widgets(self):
         turn_text = (
-            self.username + " Turn" if self.is_host else "Waiting for Opponent..."
+            self.username + " Turn" if self.is_host and self.is_my_turn else "Waiting for Opponent..."
         )
         self.turn_label = Label(
             self, text=turn_text, font=("Arial", 16), bg="blue", fg="white"
@@ -61,30 +62,46 @@ class GameBoard(Frame):
         self.exit_button.pack(side="bottom", pady=10)
 
     def setup_network(self):
+        """Setup network connections in a non-blocking way."""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        threading.Thread(target=self.handle_network_connection, daemon=True).start()
+
+    def handle_network_connection(self):
+        """Handle the network connection in a separate thread."""
         try:
             if self.is_host:
                 self.socket.bind((self.ip, self.port))
                 self.socket.listen(1)
                 self.client_socket, addr = self.socket.accept()
                 self.connection = self.client_socket
-                self.turn_label.config(text=self.username + " Turn")
-                self.is_my_turn = True
+                # Execute callback in the main thread to update the GUI
+                self.master.after(0, self.update_ui_on_connection, True)
             else:
                 self.socket.connect((self.ip, self.port))
                 self.connection = self.socket
-                self.turn_label.config(text="Waiting for Opponent...")
-                self.is_my_turn = False
+                # Execute callback in the main thread to update the GUI
+                self.master.after(0, self.update_ui_on_connection, False)
 
+            # Start receiving moves
             threading.Thread(target=self.receive_move, daemon=True).start()
 
         except Exception as e:
-            messagebox.showerror(
-                "Network Error", f"Failed to establish connection: {e}"
+            self.master.after(
+                0,
+                lambda: messagebox.showerror(
+                    "Network Error", f"Failed to establish connection: {e}"
+                ),
             )
             self.close_connection()
-            self.back_to_home_callback(self.username)
-            
+
+    def update_ui_on_connection(self, is_host):
+        """Update UI based on whether the client is a host or joining."""
+        if is_host:
+            self.turn_label.config(text=f"{self.username}'s Turn")
+            self.is_my_turn = True
+        else:
+            self.turn_label.config(text="Waiting for Opponent...")
+            self.is_my_turn = False
 
     def close_connection(self):
         if hasattr(self, "client_socket"):
@@ -120,7 +137,7 @@ class GameBoard(Frame):
         self.master.after(0, lambda: self.make_move(col, self.opponent_color))
 
     def process_turn(self, event):
-        if not self.is_my_turn:
+        if not self.is_my_turn :
             return
 
         col = int(event.x / (self.canvas.winfo_width() / self.cols))
@@ -197,9 +214,7 @@ class GameBoard(Frame):
         y1 = row * cell_height + cell_height * 0.2
         x2 = x1 + cell_width * 0.6
         y2 = y1 + cell_height * 0.6
-        self.canvas.create_oval(
-            x1, y1, x2, y2, fill=color, tags=f"piece{row}{col}"
-        )
+        self.canvas.create_oval(x1, y1, x2, y2, fill=color, tags=f"piece{row}{col}")
 
     def check_winner(self, row, col):
         directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
@@ -234,8 +249,16 @@ class GameBoard(Frame):
         return False
 
 
-def create_game_board(size, parent_window, isHost, ip, port, username , back_to_home_callback):
+def create_game_board(
+    size, parent_window, isHost, ip, port, username, back_to_home_callback
+):
     game_board = GameBoard(
-        parent_window, is_host=isHost, size=size, ip=ip, port=port, username=username , back_to_home_callback=back_to_home_callback
+        parent_window,
+        is_host=isHost,
+        size=size,
+        ip=ip,
+        port=port,
+        username=username,
+        back_to_home_callback=back_to_home_callback,
     )
     game_board.pack(fill="both", expand=True)
