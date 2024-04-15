@@ -40,10 +40,10 @@ class GameBoard(Frame):
             self.current_player = "red"
 
         self.create_widgets()
-        self.setup_network()
         self.bind_events()
-
         self.master.protocol("WM_DELETE_WINDOW", self.on_window_close)
+
+        self.setup_network()
 
     def create_widgets(self):
         turn_text = (

@@ -39,7 +39,9 @@ def main():
     def start_online_game(isHost, size, ip, port, username):
         for widget in window.winfo_children():
             widget.destroy()
-        online_board.create_game_board(size, window, isHost, ip, port, username)
+        online_board.create_game_board(
+            size, window, isHost, ip, port, username, show_home
+        )
 
     show_login()
     window.mainloop()
