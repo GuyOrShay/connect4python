@@ -1,5 +1,6 @@
 import random
 from tkinter import Canvas, Button, Label, Frame, messagebox
+import database
 
 
 class GameBoard(Frame):
@@ -66,14 +67,14 @@ class GameBoard(Frame):
 
     def unbind_events(self):
         self.canvas.unbind("<Button-1>")
-        self.master.unbind("<Configure>")  
+        self.master.unbind("<Configure>")
 
     def on_resize(self, event):
         self.redraw_board()
 
     def process_turn(self, event):
         if self.current_player != self.player_color:
-            return  # It's the bot's turn, ignore player clicks
+            return
 
         col = int(event.x / (self.canvas.winfo_width() / self.cols))
         if self.make_move(col, self.player_color):
@@ -87,13 +88,21 @@ class GameBoard(Frame):
                 self.draw_piece(row, col, color)
                 if self.check_winner(row, col):
                     winner = self.username if color == self.player_color else "Bot"
-                    messagebox.showinfo("Game Over", f"{winner} wins!")
+                    rank = self.add_rank(winner)
+                    messagebox.showinfo(
+                        "Game Over", f"{winner} wins! You Got {rank} Points!"
+                    )
                     self.unbind_events()
                     self.back_to_home_callback(self.username)
                     return False
                 self.switch_player()
                 return True
         return False
+
+    def add_rank(self, winner):
+        rank = 50 if self.username == winner else 10
+        database.update_user_rank(self.username, rank)
+        return rank
 
     def bot_move(self):
         move = self.evaluate_best_move(self.bot_color)

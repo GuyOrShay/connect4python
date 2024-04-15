@@ -1,6 +1,7 @@
 from tkinter import Frame, Button, Label, simpledialog, messagebox, Toplevel
 from app_styles import setup_styles
 from app_const import WINDOW_SIZE
+import database;
 import board
 
 
@@ -13,6 +14,7 @@ def show_home_screen(
 ):
     styles = setup_styles()
     clear_window(window)
+    rank = database.get_user_rank(username)
 
     window.geometry(WINDOW_SIZE)
     window.grid_rowconfigure(0, weight=1)
@@ -30,8 +32,7 @@ def show_home_screen(
     )
     greeting_label.grid(row=0, column=0, sticky="ew", padx=50, pady=20)
 
-    frame.grid_rowconfigure(0, weight=1)
-    frame.grid_rowconfigure(4, weight=1)
+    frame.grid_rowconfigure(5, weight=1)
     frame.grid_columnconfigure(0, weight=1)
 
     Button(
@@ -58,6 +59,17 @@ def show_home_screen(
         fg=styles["buttonFgColor"],
         command=lambda: play_over_ip(start_online_game_callback, username),
     ).grid(row=3, column=0, sticky="ew", padx=50)
+    
+    rank_label = Label(
+        frame,
+        text=f"Your Rank: {rank}",
+        font=styles["fontLarge"],
+        bg=styles["bgColor"],
+        fg=styles["fgColor"],
+    )
+    rank_label.grid(row=4, column=0, sticky="ew", padx=50, pady=20)
+
+
 
 
 def setup_game(window):

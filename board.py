@@ -70,7 +70,7 @@ class GameBoard(Frame):
 
     def bind_events(self):
         self.canvas.bind("<Button-1>", self.process_turn)
-        self.master.bind("<Configure>", self.on_resize)  # Re-draw board on resize
+        self.master.bind("<Configure>", self.on_resize)
 
     def unbind_events(self):
         self.canvas.unbind("<Button-1>")
