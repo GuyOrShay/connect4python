@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import messagebox, font as tkfont
-import database
-from app_styles import setup_styles
-from app_const import WINDOW_SIZE
+import db.database as database
+import sqlite3
+from contants.app_styles import setup_styles
+from contants.app_const import WINDOW_SIZE
 
 
 def create_styled_entry(parent, styles, show=""):
@@ -22,7 +23,7 @@ def create_styled_entry(parent, styles, show=""):
     )
 
 
-def show_login_form(window, switch_to_registration, switch_to_home):
+def show_registration_form(window, switch_to_login):
     styles = setup_styles()
     clear_window(window, styles)
     window.geometry(WINDOW_SIZE)
@@ -38,7 +39,7 @@ def show_login_form(window, switch_to_registration, switch_to_home):
 
     Label(
         form_frame,
-        text="Login",
+        text="Register",
         font=styles["fontLarge"],
         bg=styles["bgColor"],
         fg=styles["fgColor"],
@@ -66,29 +67,31 @@ def show_login_form(window, switch_to_registration, switch_to_home):
 
     Button(
         form_frame,
-        text="Login",
+        text="Register",
         width=15,
-        command=lambda: login(
-            username_entry.get(), password_entry.get(), switch_to_home
+        command=lambda: register(
+            username_entry.get(), password_entry.get(), switch_to_login
         ),
         bg=styles["buttonColor"],
         fg=styles["buttonFgColor"],
-    ).pack(pady=10)
+    ).pack()
     Button(
         form_frame,
-        text="Register",
+        text="Login",
         width=15,
-        command=lambda: switch_to_registration(),
+        command=lambda: switch_to_login(),
         bg=styles["buttonColor"],
         fg=styles["buttonFgColor"],
-    ).pack()
+    ).pack(pady=10)
 
 
-def login(username, password, switch_to_home):
-    if database.login_user(username, password):
-        switch_to_home(username)
-    else:
-        messagebox.showerror("Error", "Invalid username or password.")
+def register(username, password, switch_to_login):
+    try:
+        database.register_user(username, password)
+        messagebox.showinfo("Success", "You are registered successfully.")
+        switch_to_login()
+    except sqlite3.IntegrityError:
+        messagebox.showerror("Error", "Username already exists.")
 
 
 def clear_window(window, styles):

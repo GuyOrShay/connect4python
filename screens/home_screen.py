@@ -1,8 +1,7 @@
 from tkinter import Frame, Button, Label, simpledialog, messagebox, Toplevel
-from app_styles import setup_styles
-from app_const import WINDOW_SIZE
-import database;
-import board
+from contants.app_styles import setup_styles
+from contants.app_const import WINDOW_SIZE
+import db.database as database
 
 
 def show_home_screen(
@@ -59,7 +58,7 @@ def show_home_screen(
         fg=styles["buttonFgColor"],
         command=lambda: play_over_ip(start_online_game_callback, username),
     ).grid(row=3, column=0, sticky="ew", padx=50)
-    
+
     rank_label = Label(
         frame,
         text=f"Your Rank: {rank}",
@@ -68,19 +67,6 @@ def show_home_screen(
         fg=styles["fgColor"],
     )
     rank_label.grid(row=4, column=0, sticky="ew", padx=50, pady=20)
-
-
-
-
-def setup_game(window):
-    size = simpledialog.askinteger(
-        "Board Size", "Enter the board size (4-10):", minvalue=4, maxvalue=10
-    )
-    if not size:
-        messagebox.showerror("Error", "Board size is required to start the game.")
-        return
-
-    board.create_game_board(size, window)
 
 
 def clear_window(window):

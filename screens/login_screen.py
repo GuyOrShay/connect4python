@@ -1,9 +1,8 @@
 from tkinter import *
 from tkinter import messagebox, font as tkfont
-import database
-import sqlite3
-from app_styles import setup_styles
-from app_const import WINDOW_SIZE
+import db.database as database
+from contants.app_styles import setup_styles
+from contants.app_const import WINDOW_SIZE
 
 
 def create_styled_entry(parent, styles, show=""):
@@ -23,7 +22,7 @@ def create_styled_entry(parent, styles, show=""):
     )
 
 
-def show_registration_form(window, switch_to_login):
+def show_login_form(window, switch_to_registration, switch_to_home):
     styles = setup_styles()
     clear_window(window, styles)
     window.geometry(WINDOW_SIZE)
@@ -39,7 +38,7 @@ def show_registration_form(window, switch_to_login):
 
     Label(
         form_frame,
-        text="Register",
+        text="Login",
         font=styles["fontLarge"],
         bg=styles["bgColor"],
         fg=styles["fgColor"],
@@ -67,31 +66,29 @@ def show_registration_form(window, switch_to_login):
 
     Button(
         form_frame,
-        text="Register",
+        text="Login",
         width=15,
-        command=lambda: register(
-            username_entry.get(), password_entry.get(), switch_to_login
+        command=lambda: login(
+            username_entry.get(), password_entry.get(), switch_to_home
         ),
         bg=styles["buttonColor"],
         fg=styles["buttonFgColor"],
-    ).pack()
+    ).pack(pady=10)
     Button(
         form_frame,
-        text="Login",
+        text="Register",
         width=15,
-        command=lambda: switch_to_login(),
+        command=lambda: switch_to_registration(),
         bg=styles["buttonColor"],
         fg=styles["buttonFgColor"],
-    ).pack(pady=10)
+    ).pack()
 
 
-def register(username, password, switch_to_login):
-    try:
-        database.register_user(username, password)
-        messagebox.showinfo("Success", "You are registered successfully.")
-        switch_to_login()
-    except sqlite3.IntegrityError:
-        messagebox.showerror("Error", "Username already exists.")
+def login(username, password, switch_to_home):
+    if database.login_user(username, password):
+        switch_to_home(username)
+    else:
+        messagebox.showerror("Error", "Invalid username or password.")
 
 
 def clear_window(window, styles):

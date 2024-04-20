@@ -1,8 +1,9 @@
 import sqlite3
+from contants.app_const import DB
 
 
 def init_db():
-    with sqlite3.connect("connect4.db") as db:
+    with sqlite3.connect(DB) as db:
         cursor = db.cursor()
         cursor.execute(
             """
@@ -18,7 +19,7 @@ def init_db():
 
 
 def register_user(username, password):
-    with sqlite3.connect("connect4.db") as db:
+    with sqlite3.connect(DB) as db:
         cursor = db.cursor()
     cursor.execute(
         "INSERT INTO users(username, password) VALUES (?, ?)", (username, password)
@@ -27,7 +28,7 @@ def register_user(username, password):
 
 
 def login_user(username, password):
-    with sqlite3.connect("connect4.db") as db:
+    with sqlite3.connect(DB) as db:
         cursor = db.cursor()
     cursor.execute(
         "SELECT * FROM users WHERE username=? AND password=?", (username, password)
@@ -36,7 +37,7 @@ def login_user(username, password):
 
 
 def get_user_rank(username):
-    with sqlite3.connect("connect4.db") as db:
+    with sqlite3.connect(DB) as db:
         cursor = db.cursor()
         cursor.execute("SELECT rank FROM users WHERE username = ?", (username,))
         result = cursor.fetchone()
@@ -44,14 +45,14 @@ def get_user_rank(username):
 
 
 def get_users_by_rank():
-    with sqlite3.connect("connect4.db") as db:
+    with sqlite3.connect(DB) as db:
         cursor = db.cursor()
         cursor.execute("SELECT username, rank FROM users ORDER BY rank DESC")
         return cursor.fetchall()
 
 
 def update_user_rank(username, rank_increment):
-    with sqlite3.connect("connect4.db") as db:
+    with sqlite3.connect(DB) as db:
         cursor = db.cursor()
         # Update the rank by incrementing it with the given rank_increment value
         cursor.execute(

@@ -1,11 +1,11 @@
 from tkinter import Tk
-import login_screen
-import registration_screen
-import home_screen
-import board
-import bot_board
-import online_board
-from app_const import WINDOW_SIZE
+import screens.login_screen as login_screen
+import screens.registration_screen as registration_screen
+import screens.home_screen as home_screen
+import boards.board
+import boards.bot_board
+import boards.online_board
+from contants.app_const import WINDOW_SIZE
 
 
 def main():

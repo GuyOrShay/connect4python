@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox, font as tkfont
-import database
+import db.database as database
 import sqlite3
 from tkinter import Tk
 

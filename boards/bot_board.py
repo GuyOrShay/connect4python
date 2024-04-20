@@ -1,6 +1,6 @@
 import random
 from tkinter import Canvas, Button, Label, Frame, messagebox
-import database
+import db.database as database
 
 
 class GameBoard(Frame):
@@ -80,7 +80,7 @@ class GameBoard(Frame):
         if self.make_move(col, self.player_color):
             if self.current_player != self.player_color:
                 self.after(500, self.bot_move)
-                
+
     def make_move(self, col, color):
         for row in reversed(range(self.rows)):
             if self.pieces[row][col] is None:
