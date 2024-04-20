@@ -2,9 +2,9 @@ from tkinter import Tk
 import screens.login_screen as login_screen
 import screens.registration_screen as registration_screen
 import screens.home_screen as home_screen
-import boards.board
-import boards.bot_board
-import boards.online_board
+import boards.board as board
+import boards.bot_board as bot_board
+import boards.online_board as online_board
 from contants.app_const import WINDOW_SIZE
 
 
