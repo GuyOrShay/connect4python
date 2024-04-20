@@ -30,7 +30,6 @@ class GameBoard(Frame):
         self.back_to_home_callback = back_to_home_callback
 
         self.pieces = [[None for _ in range(self.cols)] for _ in range(self.rows)]
-
         if is_host:
             self.player_color = "yellow"
             self.opponent_color = "red"
@@ -48,7 +47,9 @@ class GameBoard(Frame):
 
     def create_widgets(self):
         turn_text = (
-            self.username + " Turn" if self.is_host and self.is_my_turn else "Waiting for Opponent..."
+            self.username + " Turn"
+            if self.is_host and self.is_my_turn
+            else "Waiting for Opponent..."
         )
         self.turn_label = Label(
             self, text=turn_text, font=("Arial", 16), bg="blue", fg="white"
@@ -74,16 +75,25 @@ class GameBoard(Frame):
                 self.socket.listen(1)
                 self.client_socket, addr = self.socket.accept()
                 self.connection = self.client_socket
+                # After connection is established, send the number of rows
+                self.connection.sendall(str(self.rows).encode("utf-8"))
                 # Execute callback in the main thread to update the GUI
                 self.master.after(0, self.update_ui_on_connection, True)
             else:
                 self.socket.connect((self.ip, self.port))
                 self.connection = self.socket
+                # Receive the number of rows from the server
+                rows_data = self.connection.recv(1024)  # Adjust buffer size as needed
+                rows = int(rows_data.decode("utf-8"))
+                self.pieces = [[None for _ in range(rows)] for _ in range(rows)]
+                self.rows = rows
+                self.cols = rows
+
                 # Execute callback in the main thread to update the GUI
                 self.master.after(0, self.update_ui_on_connection, False)
 
-            # Start receiving moves
-            threading.Thread(target=self.receive_move, daemon=True).start()
+                # Start receiving moves
+                threading.Thread(target=self.receive_move, daemon=True).start()
 
         except Exception as e:
             self.master.after(
@@ -137,7 +147,7 @@ class GameBoard(Frame):
         self.master.after(0, lambda: self.make_move(col, self.opponent_color))
 
     def process_turn(self, event):
-        if not self.is_my_turn :
+        if not self.is_my_turn:
             return
 
         col = int(event.x / (self.canvas.winfo_width() / self.cols))
