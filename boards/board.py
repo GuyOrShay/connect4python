@@ -5,7 +5,7 @@ class GameBoard(Frame):
     def __init__(
         self,
         master,
-        cols=7,
+        cols=6,
         rows=6,
         username="Guast",
         back_to_home_callback=None,

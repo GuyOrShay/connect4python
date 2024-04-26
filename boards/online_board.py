@@ -92,8 +92,8 @@ class GameBoard(Frame):
                 # Execute callback in the main thread to update the GUI
                 self.master.after(0, self.update_ui_on_connection, False)
 
-                # Start receiving moves
-                threading.Thread(target=self.receive_move, daemon=True).start()
+            # Start receiving moves
+            threading.Thread(target=self.receive_move, daemon=True).start()
 
         except Exception as e:
             self.master.after(
