@@ -134,6 +134,7 @@ class GameBoard(Frame):
                         )
                         self.canvas.unbind("<Button-1>")
                         self.turn_label.config(text=self.username + " Lose")
+                        self.back_to_home_callback(self.username)
                         break
                     else:
                         self.process_received_move(int(data))
@@ -208,7 +209,7 @@ class GameBoard(Frame):
                     winner = self.username + " Win!"
                     messagebox.showinfo("Game Over", winner)
                     self.canvas.unbind("<Button-1>")
-                    self.turn_label.config(text="You Win")
+                    self.back_to_home_callback(self.username)
                     return False
                 self.switch_player()
                 return True
